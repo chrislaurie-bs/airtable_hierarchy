@@ -5,6 +5,7 @@ import {
     useBase,
     useRecords,
     useGlobalConfig,
+    useSynced,
     expandRecord,
     useSettingsButton,
     TablePickerSynced,
@@ -13,14 +14,19 @@ import {
     FormField, 
     Input,
     Box,
+    Switch,
+    ConfirmationDialog,
+    RecordCardList,
 } from '@airtable/blocks/ui';
 import React, {useState} from 'react';
 
 function HierarchyBlock() {
+
     const [isShowingSettings, setIsShowingSettings] = useState(false);
     useSettingsButton(function() {
         setIsShowingSettings(!isShowingSettings);
     });
+
     const base = useBase();
     const globalConfig = useGlobalConfig();
 
@@ -48,7 +54,7 @@ function HierarchyBlock() {
     console.log('parent id field=' + parentIdFieldId);
 
     const descriptionFieldId = globalConfig.get('descriptionFieldId');
-    const descriptionField = treeTable.getFieldByIdIfExists(descriptionFieldId);
+    const descriptionField = (descriptionFieldId) ? treeTable.getFieldByIdIfExists(descriptionFieldId) : null;
     const descriptionFieldPicker = <FieldPickerSynced 
             table = {treeTable} 
             globalConfigKey = "descriptionFieldId" 
@@ -67,9 +73,20 @@ function HierarchyBlock() {
             <Input value={rootWord} onChange={e => globalConfig.setAsync('rootWord', e.target.value)} />
         </FormField>
 
+    const [wrapCrumbs, setWrapCrumbs, canSetWrapCrumbs] = useSynced('wrapCrumbs');
+    const enterWrapCrumbs = <Switch
+      value={wrapCrumbs}
+      onChange={newValue => setWrapCrumbs(newValue)}
+      label="Wrap navigation links (in [])"
+      //disabled = {!canSetWrapCrumbs}
+      
+    //   width="320px"
+    />
+    console.log('parent id field=' + parentIdFieldId);
+
 
     const treeOpts = {
-        fields: [parentIdFieldId],
+        fields: [parentIdFieldId, descriptionFieldId],
     };
 
     let [parentId, setparentId] = useState('');
@@ -110,11 +127,11 @@ function HierarchyBlock() {
             insurance --;
         
         const parentNode = treeRecords.filter((node) => node.id == crumbParent);
-        console.log('while true filtered crumbParent=' + crumbParent 
-            + '; records=' + parentNode.length 
-            + '; name=' + parentNode[0]?.name  
-            + '; id=' + parentNode[0]?.id
-        );
+        // console.log('while true filtered crumbParent=' + crumbParent 
+        //     + '; records=' + parentNode.length 
+        //     + '; name=' + parentNode[0]?.name  
+        //     + '; id=' + parentNode[0]?.id
+        // );
         if(!parentNode || parentNode.length == 0 || insurance == 0){
             break
         }
@@ -143,15 +160,19 @@ function HierarchyBlock() {
             name = {node.name}
             nodeId = {node.id}
             setparentId = {setparentId}
+            wrapCrumbs = {wrapCrumbs}
         />
     )) : null ;
-//crumb navigation end here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    const parentName = (nodeTree) ? nodeTree[nodeTree.length-1].name : '';
+    //crumb navigation end here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
+    const parentName = (nodeTree != null && nodeTree.length > 0) ? nodeTree[nodeTree.length-1].name : '';
 
     const emptyMessage = (treeTableId && parentIdFieldId)
         ? "No children were found for " + parentName + ". Use the navigation links above or use the quick add form below to add one."
         : "Hierarchy has not been set up properly. Please use the settings button to define your hierarchy view.";
+
+    console.log('In crumbs ');
 
     const nodeRows = (treeNodes?.length > 0) ? treeNodes.map(node => (
         <NodeRow
@@ -167,46 +188,28 @@ function HierarchyBlock() {
     const gotoRoot = <Button onClick = {() => {setparentId('')}}>Goto Root</Button>
 
     // var addDescription ='';
-    const [addDescription, setaddDescription] = useState("");
-    const descriptionPlaceHolder = "Enter " + descriptionField.name;
-    const formLabel = "Quick add to: "  + parentName;
     const quickAddForm = (nodeTree && descriptionFieldId ) 
-        ?   <Box
-                padding="20px"
-                border="thick"
-                borderRadius="large"
-                overflow="autos"
-            >
-                <div>
-                    <FormField
-                        label= {formLabel}
-                    >
-                        <Input
-                            placeholder = {descriptionPlaceHolder}
-                            value = {addDescription}
-                            onChange={e => setaddDescription(e.target.value)}
-                        />
-                    </FormField>
-                    <Button 
-                        onClick = {() => {
-                            alert("Don't press this  button again! " + addDescription);
-                        }}
-                        width = "100%"
-                    >
-                        Add
-                    </Button>
-                </div>
-            </Box>
+        ?   <AddForm
+                descriptionFieldName = {descriptionField.name}
+                parentName = {parentName}
+                tableName = {treeTable.name}
+                parentId = {parentId}
+                table = {treeTable}
+                descriptionFieldId = {descriptionFieldId}
+                parentfieldId = {parentIdFieldId}
+            />
         : 'Enable quick add by configuring a description field in settings.'
 
 
 // Settings ui >>>>>>>>>>>>>>>>>>>>>>>>
+    console.log('Entering settings ui');
     if(isShowingSettings){
         return <div>
             {tablePicker}
             {viewPicker}
             {parentIdFieldPicker}
             {descriptionFieldPicker}
+            {enterWrapCrumbs}
             {enterRootWord}
         </div>
     }
@@ -221,11 +224,76 @@ function HierarchyBlock() {
         </div>;
 //ui <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<        
 
+} // end <HierarchyBlock>
+
+
+function AddForm ({descriptionFieldName, parentName, tableName, parentId, table, descriptionFieldId, parentfieldId}){
+    const [addDescription, setaddDescription] = useState('');
+    const descriptionPlaceHolder = 'Enter ' + descriptionFieldName
+    const formLabel = 'Quick add to: '  + parentName;
+    const messageTitle = 'Add ' + addDescription + ' to ' + parentName  + ' ?';
+    const messageBody = 'This will add a new entry with ' + descriptionFieldName 
+        + ' of "' +  addDescription + '" to ' + tableName +  ' under ' + parentName 
+        +'. Are you SURE you want to do this?';
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+
+    return <Box
+        padding="20px"
+        border="thick"
+        borderRadius="large"
+        overflow="autos"
+    >
+        <div>
+            <FormField
+                label= {formLabel}
+            >
+                <Input
+                    placeholder = {descriptionPlaceHolder}
+                    value = {addDescription}
+                    onChange={e => setaddDescription(e.target.value)}
+                />
+            </FormField>
+            <React.Fragment>
+                <Button 
+                    onClick={() => setIsAddDialogOpen(true)}
+                    disabled = {!addDescription || addDescription == ''}
+                    style = {{width: "100%"}}
+                >
+                    Add
+                </Button>
+                {isAddDialogOpen && (
+                    <ConfirmationDialog
+                    title={messageTitle}
+                    body={messageBody}
+                    onConfirm={() => {                                
+                        console.log('AddForm.confirm descriptionFieldId=' + descriptionFieldId + '; addDescription=' + addDescription 
+                            + '; parentfieldId=' + parentfieldId + '; parentId=' + parentId
+                        );
+                        setIsAddDialogOpen(false);
+                        const parents = (!parentId ? null : [{'id': parentId}]);
+                        const recordFields = {[descriptionFieldId]: addDescription, [parentfieldId]: parents};
+                        // const newRecordId = table.createRecordAsync(recordFields);
+                        
+                        if (table.hasPermissionToCreateRecord(recordFields)) {
+                            const newRecordId = table.createRecordAsync(recordFields);
+                        }
+                        setaddDescription('');
+                    }}
+                    onCancel={() => setIsAddDialogOpen(false)}
+                    />
+                )}
+            </React.Fragment>
+        </div>
+    </Box>
 }
 
-function NodeTreeRow({name, nodeId, setparentId}){
-    console.log('nodeTreeRow name=' + name + '; nodeId=' + nodeId + '; setparentId=' + setparentId);
-    name = '<' + name +'>'
+function NodeTreeRow({name, nodeId, setparentId, wrapCrumbs}){
+    console.log('Entering nodetreeRow');
+    // console.log('nodeTreeRow name=' + name + '; nodeId=' + nodeId + '; setparentId=' + setparentId);
+    if(wrapCrumbs == true){
+        name = '[' + name +']'
+    }
     return <span style = {{
             // padding: 5,
              margin:5,
@@ -284,10 +352,6 @@ function NodeRow({node, currentparentId, setparentId, viewId}){
             />
         </div>
     );
-}
-
-function quickAdd(parentId, descripion, table){
-
 }
 
 
