@@ -22,6 +22,8 @@ import React, {useState} from 'react';
 
 function HierarchyBlock() {
 
+    logThis('Start of hierarchy block');
+
     const [isShowingSettings, setIsShowingSettings] = useState(false);
     useSettingsButton(function() {
         setIsShowingSettings(!isShowingSettings);
@@ -33,7 +35,7 @@ function HierarchyBlock() {
     const treeTableId = globalConfig.get('treeTableId');
     const tablePicker = <TablePickerSynced globalConfigKey="treeTableId" placeholder = "Pick a self related table."/>;    
     const treeTable = base.getTableByIdIfExists(treeTableId);
-    console.log('tree table=' + treeTable?.name);
+    logThis('tree table=' + treeTable?.name);
 
     const viewId = globalConfig.get('viewId');
     var treeView;
@@ -42,7 +44,7 @@ function HierarchyBlock() {
         globalConfigKey = "viewId" 
         placeholder = "Pick view to use."/
     >
-    console.log('view id field=' + viewId);
+    logThis('view id field=' + viewId);
 
     if(treeTable && viewId){
         const view = treeTable.views.filter((view) => view.id == viewId);
@@ -51,7 +53,7 @@ function HierarchyBlock() {
 
     const parentIdFieldId = globalConfig.get('parentIdFieldId');
     const parentIdFieldPicker = <FieldPickerSynced table = {treeTable} globalConfigKey = "parentIdFieldId" placeholder = "Pick parent column."/>
-    console.log('parent id field=' + parentIdFieldId);
+    logThis('parent id field=' + parentIdFieldId);
 
     const descriptionFieldId = globalConfig.get('descriptionFieldId');
     const descriptionField = (descriptionFieldId) ? treeTable.getFieldByIdIfExists(descriptionFieldId) : null;
@@ -60,7 +62,7 @@ function HierarchyBlock() {
             globalConfigKey = "descriptionFieldId" 
             placeholder = "Pick description column for quick add."
         />
-    console.log('descriptionField field id=' + parentIdFieldId);
+    logThis('descriptionField field id=' + parentIdFieldId);
 
 
     var rootWord = globalConfig.get('rootWord');
@@ -74,7 +76,7 @@ function HierarchyBlock() {
         </FormField>
 
     const [wrapCrumbs, setWrapCrumbs, canSetWrapCrumbs] = useSynced('wrapCrumbs');
-    const enterWrapCrumbs = <Switch
+    const enterWrapCrumbs = (!wrapCrumbs) ? null : <Switch
       value={wrapCrumbs}
       onChange={newValue => setWrapCrumbs(newValue)}
       label="Wrap navigation links (in [])"
@@ -82,7 +84,7 @@ function HierarchyBlock() {
       
     //   width="320px"
     />
-    console.log('parent id field=' + parentIdFieldId);
+    logThis('parent id field=' + parentIdFieldId);
 
 
     const treeOpts = {
@@ -91,12 +93,12 @@ function HierarchyBlock() {
 
     let [parentId, setparentId] = useState('');
     parentId = parentId ? parentId : '';
-    console.log('parentId=' + parentId);
+    logThis('parentId=' + parentId);
     let backparentId = '';
 
 
     const treeRecords = useRecords(treeView, treeOpts);
-    console.log('There be trees ' + treeRecords?.length);
+    logThis('There be trees ' + treeRecords?.length);
 
     var treeNodes = (treeRecords && treeView  && parentIdFieldId) ? treeRecords.filter(node => {
         let nodeId = node.id;
@@ -109,11 +111,11 @@ function HierarchyBlock() {
         // childOf = childOf ? childOf : '';
         if(nodeId == parentId){
             backparentId = childOf;
-            console.log('treeNodes.setBackParent ' + backparentId);
+            logThis('treeNodes.setBackParent ' + backparentId);
         }
         return (childOf == parentId) ;
     } ) : null;
-    console.log('backparentId=' + backparentId);
+    logThis('backparentId=' + backparentId);
 
 //crumb navigation starts here  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     let crumbParent = parentId
@@ -127,7 +129,7 @@ function HierarchyBlock() {
             insurance --;
         
         const parentNode = treeRecords.filter((node) => node.id == crumbParent);
-        // console.log('while true filtered crumbParent=' + crumbParent 
+        // logThis('while true filtered crumbParent=' + crumbParent 
         //     + '; records=' + parentNode.length 
         //     + '; name=' + parentNode[0]?.name  
         //     + '; id=' + parentNode[0]?.id
@@ -152,7 +154,7 @@ function HierarchyBlock() {
     
 
     nodeTree.reverse()
-    console.log('There be ancestry: ' + nodeTree.length);
+    logThis('There be ancestry: ' + nodeTree.length);
     
     let nodeTreeRows = nodeTree ? nodeTree.map(node => (        
         <NodeTreeRow
@@ -172,7 +174,7 @@ function HierarchyBlock() {
         ? "No children were found for " + parentName + ". Use the navigation links above or use the quick add form below to add one."
         : "Hierarchy has not been set up properly. Please use the settings button to define your hierarchy view.";
 
-    console.log('In crumbs ');
+    logThis('In crumbs ');
 
     const nodeRows = (treeNodes?.length > 0) ? treeNodes.map(node => (
         <NodeRow
@@ -202,7 +204,7 @@ function HierarchyBlock() {
 
 
 // Settings ui >>>>>>>>>>>>>>>>>>>>>>>>
-    console.log('Entering settings ui');
+    logThis('Entering settings ui');
     if(isShowingSettings){
         return <div>
             {tablePicker}
@@ -267,13 +269,12 @@ function AddForm ({descriptionFieldName, parentName, tableName, parentId, table,
                     title={messageTitle}
                     body={messageBody}
                     onConfirm={() => {                                
-                        console.log('AddForm.confirm descriptionFieldId=' + descriptionFieldId + '; addDescription=' + addDescription 
+                        logThis('AddForm.confirm descriptionFieldId=' + descriptionFieldId + '; addDescription=' + addDescription 
                             + '; parentfieldId=' + parentfieldId + '; parentId=' + parentId
                         );
                         setIsAddDialogOpen(false);
                         const parents = (!parentId ? null : [{'id': parentId}]);
                         const recordFields = {[descriptionFieldId]: addDescription, [parentfieldId]: parents};
-                        // const newRecordId = table.createRecordAsync(recordFields);
                         
                         if (table.hasPermissionToCreateRecord(recordFields)) {
                             const newRecordId = table.createRecordAsync(recordFields);
@@ -289,8 +290,8 @@ function AddForm ({descriptionFieldName, parentName, tableName, parentId, table,
 }
 
 function NodeTreeRow({name, nodeId, setparentId, wrapCrumbs}){
-    console.log('Entering nodetreeRow');
-    // console.log('nodeTreeRow name=' + name + '; nodeId=' + nodeId + '; setparentId=' + setparentId);
+    logThis('Entering nodetreeRow');
+    // logThis('nodeTreeRow name=' + name + '; nodeId=' + nodeId + '; setparentId=' + setparentId);
     if(wrapCrumbs == true){
         name = '[' + name +']'
     }
@@ -304,7 +305,7 @@ function NodeTreeRow({name, nodeId, setparentId, wrapCrumbs}){
             aria-label = "Go to"
             style = {{color: "blue"}}
             onClick = {() => {
-                console.log('NodeTreeRow Set new parent nodeId=' + nodeId);                
+                logThis('NodeTreeRow Set new parent nodeId=' + nodeId);                
                 setparentId(nodeId);
                 // setBackparentId(currentparentId);
             }}                
@@ -334,7 +335,7 @@ function NodeRow({node, currentparentId, setparentId, viewId}){
                 variant = "dark"
                 size = "large"
                 onClick = {() => {
-                    console.log('NodeRow Set new parent id=' + node.id);
+                    logThis('NodeRow Set new parent id=' + node.id);
                     setparentId(node.id);
                 }}                
             >
@@ -354,5 +355,12 @@ function NodeRow({node, currentparentId, setparentId, viewId}){
     );
 }
 
+
+function logThis(message){
+    let logNow; //make null to stop logging like before a release
+    if(logNow != null){
+        console.log(message);
+    }
+}
 
 initializeBlock(() => <HierarchyBlock />);
