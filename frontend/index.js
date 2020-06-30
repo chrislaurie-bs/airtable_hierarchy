@@ -47,10 +47,6 @@ function HierarchyBlock() {
     logThis('parent id field=' + parentIdFieldId);
 
     
-    const showFieldIds = globalConfig.get('showFieldIds') ?? [];
-    logThis('showFields=' + showFieldIds);
-
-
     var rootWord = globalConfig.get('rootWord');
 
     const wrapCrumbs = globalConfig.get('wrapCrumbs');
@@ -70,8 +66,7 @@ function HierarchyBlock() {
 
     var fetchFields = [];
     fetchFields.push(parentIdFieldId);
-    fetchFields.push(descriptionFieldId);
-    showFieldIds.map((fieldId) => fetchFields.push(fieldId));
+    fetchFields.push(descriptionFieldId);    
     const treeOpts = {
         fields: fetchFields,
     };
@@ -130,7 +125,6 @@ function HierarchyBlock() {
         nodeTree.push(rootNode);
     }
     
-
     nodeTree.reverse()
     logThis('There be ancestry: ' + nodeTree.length);
     
@@ -152,7 +146,8 @@ function HierarchyBlock() {
         : '';
 
     const emptyMessage = (treeTableId && parentIdFieldId)
-        ? "No children were found for: " + parentName + ". Use the navigation links above or use the quick add form below to add one."
+        ? "No children were found for: " + parentName + ". Use the navigation links above"
+            + ((!enableQuickAdd) ? '' :  " or use the quick add form below to add one") +"."
         : "Hierarchy has not been set up properly. Please use the settings button to define your hierarchy view.";
 
     logThis('In crumbs ');
@@ -190,14 +185,14 @@ function HierarchyBlock() {
     }
 // Settings ui <<<<<<<<<<<<<<<<<<<<<<
 
-var pruneThisRecord;
-if(pruneThis && pruneThis != '') {
-    const pruneRecords = treeRecords.filter(rec => rec.id == pruneThis);
-    pruneThisRecord = pruneRecords[0];
-}
+    var pruneThisRecord;
+    if(pruneThis && pruneThis != '') {
+        const pruneRecords = treeRecords.filter(rec => rec.id == pruneThis);
+        pruneThisRecord = pruneRecords[0];
+    }
 
 
-const graftButton = <GraftHere
+    const graftButton = <GraftHere
         table = {treeTable}
         parentId = {parentId}
         parentFieldId = {parentIdFieldId}
