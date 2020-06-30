@@ -14,9 +14,11 @@ Hierarchy makes it simple and intuitive to navigate a self-related table. Naviga
 >>> insert gif here <<<
 
 ## Roadmap
-A few features I am contemplating for a future version. This may not be open source:
+A few features I am contemplating for a future version. 
 * Display configuration. Currently Hierarchy only shows the primary field of a table. This is how Airtable often do it. With this feature, you will be able to specify which fields to show on the rows/cards.
 * Children lists. In some cases, Hierarchy is in fact a method to classify the parent link of another table. Add a second list of rows which then comes from the child table.
+* Hierarchical roll-ups and totals. Get the counts brnaches/children or totals of a column for each node in the hierarchcy.
+* Branch templates. Specify a branch node to act as a template and then graft a copy of that node at the current level. This will make it is to get identical branch structures pre-populated, based on another brnach.
 * Improved settings interface. At the moment the settings interface sucks a bit.
 * Code clean-up and architecture. Refactor the code into more modularized, smaller chunks. Currently index.js is a bit of a behemoth and the structure is not elegant and simple.
 
@@ -26,7 +28,6 @@ I am new to React programming so this was a learning experience for me. Here are
 * The instructions and guides were well written and understandable. 
 * I would have preferred a few better examples of the api. For example, it took me a while to figure out the syntax of the fields attribute when creating or updating Airtable rows.
 * My code is currently messy. Being a newb, I do not yet have an intuitive experience for how to architecture my custom block code. A guide of suggested architecture would be highly appreciated.
-* Debugging in JavaScript is already challenging for me, but the line numbers in error messages does not correspond to the line numbers in my code editor.
 * Moving a block to another base proved impossible. I got the original idea for Hierarchy on a POC base I was working on to pitch to my colleagues. I soon realized that if I am going to be developing a custom block, it must happen linked to a simple dedicated test base. I could not figure out how to "move" the custom block to the new base. I kept getting a message that said you must edit the table in its original base. 
 * Overall, it had the same satisfying excitement/frustration experience of learning something new.
 
@@ -34,6 +35,7 @@ I am new to React programming so this was a learning experience for me. Here are
 What would I change or add to custom block functionality? It may well be that custom blocks can already do these things so apologies for not RTFM.
 * Blocks in blocks. Have the ability to insert a custom block somewhere in your code and have that feed your new custom block. For example: Hierarchy makes intuitive navigation of a complex self-related table possible. But what if I want that to be a feeder for other functionality? I want to be able to use hierarchy as is in many places but each time using the current branch parent to feed my other functionality.
 * Similarly, I could not see how to call an existing script from my code. As a programmer I would like to build a library of scripts that manipulates my data and then also be able to call those from with my custom block code.
+* Allow a block to be alinking field picker. The idea is that I can export a record id from my block. Then specify the block itself as a record picker. So wh the user clicks the + button, it is my custom bock that pops up and allows the user to select the link record using cusom block.
 
 ## Airtable functionality in general.
 I am an IT systems consultant / developer and my primary use for Airtable would be to help clients model the business processed in Airtable and then help them with scripting, custom blocks and even apps. There are a few things I would add / change in Airtable that would make it a better product and improve its reach.
