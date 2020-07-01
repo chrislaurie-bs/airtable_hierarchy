@@ -13,6 +13,7 @@ import {
     Dialog,
     Text,
     Heading,
+    ViewportConstraint,
 } from '@airtable/blocks/ui';
 import React, {useState} from 'react';
 import SettingsPage from './settings.js';
@@ -128,8 +129,8 @@ function HierarchyBlock() {
     nodeTree.reverse()
     logThis('There be ancestry: ' + nodeTree.length);
     
-    let nodeTreeRows = nodeTree ? nodeTree.map(node => (        
-        <NodeTreeRow
+    let breadCrumbs = nodeTree ? nodeTree.map(node => (        
+        <BreadCrumb
             key = {node.id}
             name = {node.name}
             nodeId = {node.id}
@@ -161,11 +162,15 @@ function HierarchyBlock() {
         />
     )) : <div style={{padding: 10, alignItems: "center"}}>{emptyMessage}</div>;
 
+    const nodeList = <div style={{minWidth: "350px"}}>
+            {nodeRows}
+        </div>
+
 
     const gotoRoot = <Button onClick = {() => {setparentId('')}}>Goto Root</Button>
 
     // var addDescription ='';
-    const quickAddForm = (treeTable && nodeTree) 
+    const quickAddForm = (treeTable && nodeTree && enableQuickAdd) 
         ?   <AddFormButton
                 descriptionFieldName = {descriptionField?.name}
                 parentName = {parentName}
@@ -176,13 +181,9 @@ function HierarchyBlock() {
                 parentfieldId = {parentIdFieldId}
                 wrapCrumbs = {wrapCrumbs}
             />
-        : 'Enable quick add by configuring a description field in settings.'
+        : (!treeNodes) ? null : <div style={{padding: "10px"}}>Enable quick add by configuring a description field in settings.</div>
 
 
-// Settings ui >>>>>>>>>>>>>>>>>>>>>>>>
-    if(isShowingSettings){
-        return <SettingsPage />
-    }
 // Settings ui <<<<<<<<<<<<<<<<<<<<<<
 
     var pruneThisRecord;
@@ -192,25 +193,41 @@ function HierarchyBlock() {
     }
 
 
-    const graftButton = <GraftHere
-        table = {treeTable}
-        parentId = {parentId}
-        parentFieldId = {parentIdFieldId}
-        pruneThisRecord = {pruneThisRecord}
-        setPruneThis = {setPruneThis}
-        parentName = {parentName}
-        wrapCrumbs = {wrapCrumbs}
-    />
+    const graftButton = (!pruneThis) ? null :
+        <GraftHere
+            table = {treeTable}
+            parentId = {parentId}
+            parentFieldId = {parentIdFieldId}
+            pruneThisRecord = {pruneThisRecord}
+            setPruneThis = {setPruneThis}
+            parentName = {parentName}
+            wrapCrumbs = {wrapCrumbs}
+        />
+
 
 //ui >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    
-    return <div>
-            <div style={{padding: 10}}>
+    return (
+        <Box
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            display="flex"
+            overflow="hidden"            
+            justifyContent= "space-between"
+        >
+            <div>
                 {graftButton}
-            </div>            
-            <div style={{padding: 5}}>{nodeTreeRows}</div>
-            {nodeRows}
-            {enableQuickAdd && (<div style = {{margin:15}}>{quickAddForm}</div>)}
-        </div>;
+                <div style={{padding: 5}}>
+                    {breadCrumbs}
+                </div>
+                {nodeList}
+                {quickAddForm}
+            </div>
+            {isShowingSettings && (<SettingsPage />)}
+        </Box>
+    );
 //ui <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<        
 
 } // end <HierarchyBlock>
@@ -226,7 +243,7 @@ function GraftHere({table, parentId, parentFieldId, setPruneThis, pruneThisRecor
     const messageTitle = 'Graft ' + graftText + '?';
     const messageBody = 'This move ' + pruneThisRecord?.name +' to be under parent ' + parentName
         + '. Are you SURE you want to do this';
-    return <div>
+    return <div style={{padding: 5}}>
                 <div>
                 <Button
                     variant="danger"                
@@ -275,7 +292,7 @@ function GraftHere({table, parentId, parentFieldId, setPruneThis, pruneThisRecor
 
 function AddFormButton({descriptionFieldName, parentName, tableName, parentId, table, descriptionFieldId, parentfieldId, wrapCrumbs}){
     const [showForm, setShowform] = useState(true);
-    return <div>
+    return <div style = {{margin:"2%", minWidth: "300px"}}>
         <Button
             onClick={() => setShowform(!showForm)}
             size="small"
@@ -378,7 +395,7 @@ function AddForm ({descriptionFieldName, parentName, tableName, parentId, table,
     </Box>
 }
 
-function NodeTreeRow({name, nodeId, setparentId, wrapCrumbs}){
+function BreadCrumb({name, nodeId, setparentId, wrapCrumbs}){
     logThis('Entering nodetreeRow');
     name = (wrapCrumbs ? '[' : '') +  name + (wrapCrumbs ? ']' : '')
     return <span style = {{margin:5}}>

@@ -26,10 +26,10 @@ A few features I am contemplating for a future version.
 I am new to React programming so this was a learning experience for me. Here are some thoughts on how that went.
 * The forums were a friendly and helpful place. A newbie was well tolerated and answered.
 * The instructions and guides were well written and understandable. 
-* I would have preferred a few better examples of the api. For example, it took me a while to figure out the syntax of the fields attribute when creating or updating Airtable rows.
-* My code is currently messy. Being a newb, I do not yet have an intuitive experience for how to architecture my custom block code. A guide of suggested architecture would be highly appreciated.
-* Moving a block to another base proved impossible. I got the original idea for Hierarchy on a POC base I was working on to pitch to my colleagues. I soon realized that if I am going to be developing a custom block, it must happen linked to a simple dedicated test base. I could not figure out how to "move" the custom block to the new base. I kept getting a message that said you must edit the table in its original base. 
-* Overall, it had the same satisfying excitement/frustration experience of learning something new.
+* I would have preferred a few more examples of the api. For example, it took me a while to figure out the syntax of the fields attribute when creating or updating Airtable rows.
+* My code structure is currently messy. Being a newb, I do not yet have an intuitive experience for how to architecture my custom block code. A guide of suggested architecture would be highly appreciated.
+* Moving a block for development to another base proved impossible. I got the original idea for Hierarchy on a POC base I was working on to pitch to my colleagues. I soon realized that if I am going to be developing a custom block, it must happen inside a simple, dedicated test base. I could not figure out how to "move" the custom block to the new base. I kept getting a message that said you must edit the table in its original base. 
+* Overall, the experience had the same, satisfying, excitement/frustration emotions of learning something new.
 
 ## Custom block / scripting functionality
 What would I change or add to custom block functionality? It may well be that custom blocks can already do these things so apologies for not RTFM.

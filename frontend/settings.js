@@ -10,6 +10,7 @@ import {
     Switch,
     Heading,
     Label,
+    Box,
 } from '@airtable/blocks/ui';
 import {FieldType} from '@airtable/blocks/models';
 import React, {useState} from 'react';
@@ -128,18 +129,28 @@ function MySettingsPage(){
     const treeTableId = globalConfig.get('treeTableId');
     treeTable = base.getTableByIdIfExists(treeTableId);
 
-    return <div>
-        <div>
-            <Heading size="large" style={{marginLeft: "10px"}}>Hierarchy Set-up</Heading>
-            <TableSettingsRow/>
-            <ViewSettingsRow/>
-            <ParentFieldSettingsRow/>
-            <QuickAddRow/>
-            <DescriptionFieldRow/>
-            <RootWordRow/>
-            <WrapCrumbsRow/>
-        </div>
-    </div>
+    return (<Box
+            flex="none"
+            display="flex"
+            flexDirection="column"
+            width="300px"
+            backgroundColor="white"
+            style = {{marginRight: "20px"}}
+        >
+            <div>
+                <div>
+                    <Heading size="large" style={{marginLeft: "10px"}}>Hierarchy Set-up</Heading>
+                    <TableSettingsRow/>
+                    <ViewSettingsRow/>
+                    <ParentFieldSettingsRow/>
+                    <QuickAddRow/>
+                    <DescriptionFieldRow/>
+                    <RootWordRow/>
+                    <WrapCrumbsRow/>
+                </div>
+            </div>
+        </Box>
+    );
 }
 
 export default function SettingsPage() {return MySettingsPage()}
