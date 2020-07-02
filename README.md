@@ -11,7 +11,7 @@ Hierarchy makes it simple and intuitive to navigate a self-related table. Naviga
 * Quick Add. Add a new entry at the current level (a sibling of the entries you see in the list) by entering a description and pressing the add button. You can configure which field in your table is the description, or it will be put the table's primary field, if it is a text entry field.
 * Pruning & grafting. Each row has a prune button. When pressed, this will mark that row as the graft target. A graft button appears at the top of the table allowing you to decide at what branch in your hierarchy you want to graft the pruned entry to. This makes it simple to move an entire branch with all its children to another branch.
 
-![Hierarchy Demo](demo/demo2.gif)
+![Hierarchy Demo](demo/demo3.gif)
 
 ## Roadmap
 A few features I am contemplating for a future version. 
