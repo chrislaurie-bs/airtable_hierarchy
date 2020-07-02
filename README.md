@@ -46,3 +46,4 @@ I am an IT systems consultant / developer and my primary use for Airtable would 
   * Validation by formula. Using the already existing formula system, allow me to create a formula that outputs a Boolean that indicates if the current value in the field passes validation or not. Then do not allow the update or insert into the table to happen.
   * Validation by script. Similarly, allow me to create a script that receives the current record and then returns a valid or not Boolean.
 * Dynamic filtering of lookup lists. Allow me to specify a filter that is passed to the lookup list parent. One should be able to use fields in the record being edited (current value for the current row), as well as fields from the linked table in the formula.
+* Open the attachement when clicking on a thumbnail (gallery as well as other views). In other words, do not expand the record when I click specifically on a attachement thumnail. Rater open the attachment immediately.
