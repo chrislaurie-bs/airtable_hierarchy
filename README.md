@@ -17,6 +17,7 @@ Here is a demo gif - for best viewing right click and open in a new tab:
 ## Roadmap
 A few features I am contemplating for a future version. 
 * Display configuration. Currently Hierarchy only shows the primary field of a table. This is how Airtable often does it. With this feature, you will be able to specify which fields to show on the rows/cards.
+* Follow me. With this functionality you can set up a table and column (or view of it), that links to your self-related table. Then, as you navigate the table, Hierarchy will change to show where you are in the hierarchy of your self-related table. This will also have buttons to allow you to move selected rows to a new link of your self related table.
 * Children lists. In some cases, Hierarchy is in fact a method to classify a link to another table. This functionality will add a second list from the linked table, filtered by the current selected parent in the self-related table.
 * Hierarchical roll-ups and totals. Get the counts branches/children or totals of a column for each node in the hierarchy.
 * Branch templates. Specify a branch node to act as a template and then graft a copy of that node and all its children at the current level. This will make it easy to get identical branch structures pre-populated, based on an existing branch.
